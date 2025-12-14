@@ -1,0 +1,81 @@
+WEBVTT
+In this lecture, we look at how to manage certificates and what the certificate API is in Kubernetes.
+So what have we done so far?
+I, as an administrator of the cluster, in the process of setting up the whole cluster, have set up
+a CA server and a bunch of certificates for various components.
+We then started the services using the right certificates and is all up and working, and the only administrator
+and user of the cluster, and I have my own admin certificate and key.
+A new admin comes into my team.
+She needs access to the cluster.
+We need to get her a pair of certificate and key pair for her to access the cluster.
+She creates her own private key, generates a certificate signing request and sends it to me since I'm
+the only admin.
+I then take the certificate signing request to my CA server.
+Gets it signed by the CA server using the CA server's private key and root certificate, Effect, thereby
+generating a certificate, and then sends the certificate back to her.
+She now has her own valid pair of certificate and key that she can use to access the cluster.
+The certificates have a validity period.
+It ends after a period of time.
+Every time it expires, we follow the same process of generating a new CSR and getting it signed by
+the CA.
+So we keep rotating the certificate files.
+So we keep talking about the CA server.
+What is the CA server and where is it located in the Kubernetes setup?
+The CA is really just a pair of key and certificate files we have generated.
+Whoever gains access to these pair of files can sign any certificate for the Kubernetes environment.
+They can create as many users as they want with whatever privileges they want.
+So these files need to be protected and stored in a safe environment.
+So we place them on a server that is fully secured.
+Now that server becomes your CA server.
+The certificate key file is safely stored in that server and only on that server.
+Every time you want to sign a certificate, you can only do it by logging in to that server.
+As of now, we have the certificates placed on the Kubernetes master node itself.
+So the master node is also RCA server.
+The kube adm tool does the same thing.
+It creates a CA pair of files and stores that on the master node itself.
+So far we have been signing requests manually, but as and when the users increase and your team grows,
+you need a better automated way to manage the certificates signing requests, as well as to rotate certificates
+when they expire.
+Kubernetes has a built in certificates API that can do this for you.
+With the certificates API, you now send a certificate signing request directly to Kubernetes through
+an API call.
+This time, when the administrator receives a certificate signing Assigning requests instead of logging
+on to the master node and signing the certificate by himself, he creates a Kubernetes API object called
+certificate signing request.
+Once the object is created, all certificate signing requests can be seen by administrators of the cluster.
+The requests can be reviewed and approved easily using kube control commands.
+This certificate can then be extracted and shared with the user.
+Let's see how it is done.
+A user first creates a key, then generates a certificate signing request using the key with her name
+on it, then sends the request to the administrator.
+The administrator takes a key and creates a certificate signing request object.
+The certificate signing request object is created like any other Kubernetes object, using a manifest
+file with the usual fields the kind a certificate signing request under the spec section.
+The request field is where you specify the certificate signing request sent by the user, but you don't
+specify it as plain text.
+Instead, it must be encoded using the base64 command.
+Then move the encoded text into the request field and then submit the request once the object is created.
+All certificate signing requests can be seen by administrators by running the kube control.
+Get CSR command.
+Identify the new request and approve the request by running the Kube control certificate.
+Approve command.
+Kubernetes signs the certificate using the CA key pairs and generates a certificate for the user.
+This certificate can then be extracted and shared with the user.
+View the certificate by viewing it in a YAML format.
+The generated certificate is part of the output, but as before, it is in a base64 encoded format.
+To decode it, take the text and use the base64 utilities decode option.
+This gives the certificate in a plain text format.
+This can then be shared with the end user.
+Now that we have seen how it works, let's see who does all of this for us.
+If you look at the Kubernetes control plane, you see the kube API server, the scheduler, the control
+manager, etcd server, etc. which of these components is actually responsible for all the certificate
+related operations?
+All the certificate related operations are carried out by the controller manager.
+If you look closely at the Controller manager, you will see that it has controllers in it called as
+CSR, approving, CSR signing, etc. the responsible for carrying out these specific tasks.
+We know that if anyone has to sign certificates, they need the CCA server's root certificate and private
+key.
+The Controller Manager service configuration has two options where you can specify this.
+Well, that's it for this lecture.
+Head over to the practice test and play around with the certificates API.
+I will see you in the next lecture.

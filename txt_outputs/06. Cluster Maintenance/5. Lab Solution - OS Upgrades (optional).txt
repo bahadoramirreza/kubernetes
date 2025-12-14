@@ -1,0 +1,253 @@
+WEBVTT
+-: Okay, so let's go through the lab on um,
+cluster maintenance.
+So let us first explore the environment
+and how many nodes do you see in the cluster.
+So...
+many of us set,
+um, the alias to...
+recover
+So let's do...
+get nodes.
+And we see that there are two nodes
+the control plane and node zero one, so that's two.
+And now how many applications do you see hosted
+on the cluster?
+Check the number of deployments.
+So let's do, um, get deploy.
+And we see that...
+we have...
+one deployment, so that's just one.
+Now which node are the applications hosted on?
+So let's do, um...
+get...pods.
+And we see there are three pods
+and let's use the wide option to see...
+what um, nodes they're on.
+So we see that they're on...
+node zero one
+all of them are on node zero one.
+So that's the answer to this.
+Now we need to take node zero one out for maintenance
+so empty the node of all applications and mark it,
+untodoable.
+So we learned that the command to kind of take a node down
+for maintenance is drained.
+So we're gonna do a drain node zero one.
+And when we run that, it says um...
+it's not drained
+because you cannot delete demand set managed ports.
+So there are demand set managed pots on on this node.
+So we could use the ignore demand set option.
+So let's do that.
+So on the same command with the ignore demand sets option
+and it's going to...
+evict the pods for the blue deployment.
+Okay, so that's done...
+Not...
+fully.
+Let's wait for the...
+the third pod to be evicted.
+Okay.
+Okay, so that's done.
+Now, what nodes are the apps on now?
+So let's take a look at the pods...
+and see...
+where they are.
+So now you can see that they're all on control plane.
+They're all on the control plane node.
+And, if you look at the status of the nodes, we see
+that node zero one is...in a scheduling disabled state.
+So, to answer to this question, all of them are
+on control plane.
+Applying patches on node zero one.
+Hold on.
+Okay, so the maintenance task have been completed.
+So, we now need to configure the node of zero one to
+be scheduled again.
+So we saw that it's in um,
+um, scheduling disabled state.
+To bring a node out of the
+scheduling disabled state and back in
+to the cluster we do um, uncordon
+and then, give us...
+not name.
+So the node is uncordoned and when you do a get nodes
+it's now back to its normal original state.
+Okay, so the next question is...
+How many pods are scheduled
+on node zero one now?
+So, let's run the get pods command again
+with the wide option.
+And, we see that they're all still
+on control plane on the control plane node.
+So, there are no pods currently on
+on node zero one, so that's zero.
+And why are there no pods on node zero one?
+Um, is it because node zero one is faulty?
+No.
+Is it cordoned?
+No, we just uncordoned it.
+And then, is it
+because they not did not upgrade successfully?
+No, it's
+because only when new pods are created, they'll be schedule.
+So we have not created any...
+um, we have not deployed any new application
+after we uncordoned, um, the node.
+So, we don't expect anything to be on that node.
+The, the
+the pods that were moved to control plane are not
+going to move back automatically to, to node zero one.
+Now why are the pods placed
+on control plane on the control plane node?
+Check the control plane node for details.
+Okay, so usually we don't expect applications to be deployed
+on the control plane
+because it usually has a taint, of some sort.
+But let's look at...
+the node control plane,
+and see if it...
+has any taints...
+And, and, we see that there are no taints.
+So...
+Um, that's, that's one
+of the reason that um,
+the pods were scheduled
+on the control plane node.
+So it's not because it's faulty
+or you can never run pods on a master node.
+It does not have any taints.
+So, it does not have any taints.
+So, that's the correct answer.
+So usually when you have a multi node cluster
+the master node or the control plane node would have
+taints that would prevent pods from being placed on it.
+And in this case it doesn't and that's why I have it.
+So, okay, so now we are going to time travel
+to the next maintenance window.
+And...
+Okay, so it's time to carry out the maintenance activity
+on node zero one again.
+Try draining the node again using the same command.
+So this is the same Q kernel drain node command
+with the ignored demand sets option.
+So let's run that again.
+Um, but we see that there is an error
+um, it's says that cannot delete pods
+not managed by
+replication controller, replica set job
+demand set or stateful set.
+So use force to override.
+So did that work, um, this command?
+No, it did not.
+Okay, so why did the drain command fail on node zero one?
+It worked the first time.
+So there seems to be...
+a change.
+Here, it says there's a default HR app.
+Let's take a look at that.
+And we see that,
+indeed there is a HR app which seems to
+be a new addition and, and which is a
+which is a pod that has been added
+or an application that is deployed
+as a pod um, since the first um, maintenance window.
+And let's see where that is scheduled.
+We see that that one is scheduled on node zero one.
+So, if you look at the error message here
+you cannot delete pods not managed by any of these.
+Right? And, and when you do a drain.
+So when you do a drain,
+what happens is it first, cordons a node
+and marks it unschedulable
+and then...
+it tries to evict all the pods.
+Now it is easy to delete the pods that are managed
+by either one of these by replica said, or a job
+or a replication controller um,
+because when you delete the pods
+they take care of recreating the pod on another node, right?
+Um, so that's kind of less risky.
+So you can go ahead and just...
+as part of the draining process, you can just go ahead
+and kill the pods and then the replica set
+or whatever it is that's managing the pod
+would take care of recreating them on on the other node.
+But in this case it's a pod.
+Um, just a pod.
+It's not one that is created as part
+of a deployment or replica set or, or any of this, right?
+So, if it deleted this pod as part of this draining process
+that pod and anything that pod has created
+any data that that that is created or is stored locally
+on that pod is going to be lost forever, right?
+So that's why you have this kind
+of error message here,
+and that's why it did not kind of kill
+or terminate this pod.
+So, the answer to this question is...
+That this is because there is a part on node zero one
+which is not part of a replica set.
+Or, any of these.
+Okay, so what is the name of the pod hosted
+on node zero one that is not part of the replica set?
+So it's HR app.
+Now what would happen to HR app
+if node zero one is drained forcefully?
+So the reason option two drained the node
+as you can see here using the force option.
+So let's try that out...
+Just force.
+What's gonna happen is that this pod is gonna be deleted
+and it's going to be gone forever, right?
+So we're not going to, there's nothing here
+that's going to move or reschedule this pod
+on any other worker node and that's main
+mainly the reason why it's preventing us from doing that.
+So the answer to this question is
+that HR app will be lost forever.
+Okay? Now we did not want to do that because HR
+app is a critical application that should not be destroyed.
+So we have now reverted back
+to the previous state and redeployed HR app as a deployment.
+Okay, so now...
+we have...
+you look at the deployments we see that...
+um, the HR app is now deployed as a deployment.
+And if you look at the pods...
+we see that HR app indeed is indeed deployed as a
+deployment.
+So, this is the replication controller
+and then you have the deployment here.
+So...
+and this is also scheduled on node zero one.
+Okay?
+Now HR app is a critical app
+and we do not want it to be removed and we also
+do not want to schedule any more pods on node zero one.
+So, currently the HR app is on node zero one
+and we don't want to kind of schedule anything more
+on node zero one because it's kind of...
+apparently, it's a critical app.
+So we, we need to mark node zero one as
+untodoable.
+So that no more new pods actually build
+on the node.
+But we also have to make sure
+that the HR app is not affected, right?
+So what we want to do is, basically what we are
+saying is we have to currently the node
+if a any application is deployed
+it's going to be scheduled here because it's, it's
+in ready state and we want to prevent that from happening.
+But at the same time
+we also don't want to kill this app by doing a drain, right?
+So the other option is to just burden.
+So we're gonna do a Q kernel cordon node zero one
+and all that's going to do is mark the node
+as scheduling dis-disabled,
+but, at the same time...
+the...
+The HR application is just going to be, um, fine.
+Okay! So that's the end of this lab.
