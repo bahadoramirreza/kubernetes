@@ -1,0 +1,336 @@
+WEBVTT
+-: Okay, in this video,
+we'll go over the lab on Multi-Container pods.
+So the first question is,
+to identify the number of containers created in the red pod.
+So let's first see the pod
+so there seems to be multiple pods and there is
+indeed, a red pod.
+There are in a container creating state.
+So to identify the number of containers,
+we've learned that we could just look at this.
+So when you look at the ready column for a pod,
+this is the total number of pods
+and these are the ones that are ready.
+So from here we can figure out that there are three...
+The other way to find that out is to
+look at it with the describe command.
+And we see that under containers
+we have one, two, and three.
+So there are three containers for this pod.
+Okay, so the next question is
+to identify the name of the containers
+running in the blue pod.
+So, let's
+look into
+the blue pod.
+And we see that on the containers there are two
+and it's teal and navy.
+Okay, so the next task is
+to create a Multi-Container pod with two containers
+and use the spec given below.
+If the pod goes into a crash loop back off,
+then add sleep 1,000.
+So that's because this one is busy box.
+So we have to create a pod with the name yellow.
+The container, the first container's name should be lemon.
+And then using the busy box image,
+the second container's name should be gold,
+using the Redis image.
+So let's
+create a pod,
+so kubectl run.
+And then the name of the pod is yellow,
+and image,
+first image is busy box.
+Then we have to use the dry run.
+'Cause we don't want to create this yet,
+we need to add in the second thing as well.
+Then let's output it into a YAML form.
+So we have the pod definition file.
+Let's move that to below.yaml.
+Okay, and then edit the file,
+add the additional container in.
+So the first container is,
+has the image Busy box.
+The name though, the name for the first container
+has to be lemon.
+So you have to go in and modify that.
+But if all it automatically takes the name of the pod,
+as the name of the first container
+so let's change that to
+lemon.
+And
+let's add a new
+container to it.
+The next one's name
+is called
+and image
+is Redis.
+Okay, let's save that.
+But we also said,
+although this is optional to add
+the command sleep 1,000 for the lemon.
+And that's the busy box container.
+So let's add command.
+And we've learned that we've got to give it an array.
+So that's sleep.
+And always when you type a command,
+the first element has to be just the command
+without the option.
+And 1,000 or anything else needs to go as an argument
+and as an extra item in the array.
+Okay, so let's create
+that pod.
+Let's look at the pod.
+And it's created, it has two containers.
+The first one lemon,
+has busy box with the command
+and gold has Redis.
+Okay.
+So next we're gonna look at
+a simple application set up.
+So here we have deployed an application
+and a logging stack in the elastic stack namespace,
+so there is namespace called Elastic Stack and there are,
+there's an application and multiple pods.
+And before proceeding with the next set of questions,
+please wait for all the pod
+in the elastic namespace to be ready.
+Okay, so let's first explore that namespace.
+So let's do a kubectl pods,
+Elastic Stack.
+And we see that there is the app pod,
+and then you have the Elasticsearch Pod,
+and then you have the Kibana pod,
+and
+all of them are now in a running state.
+Okay, so let's go ahead
+and once the pod is in a ready state
+inspect the Kibana UI using the link about your terminal.
+So now if you're not familiar with this stack
+so basically, Elasticsearch is what
+where the data is collected
+and this could be any metrics, logs,
+these are logs that are collected from applications
+and then the Kibana is the dashboard that users use
+or administrators use.
+To view and in a filter the logs.
+So
+you can view that here.
+So clicking on Kibana
+opens up
+the UI to the Kibana dashboard.
+So let's
+wait for it to load.
+So this is the dashboard.
+And so the goal here is to
+transfer the logs of this application
+to Elasticsearch.
+And then, Elasticsearch is then that logs are then viewed
+on the Kibana dashboard.
+So that's the ultimate goal.
+Okay, so this is ready.
+Okay, now inspect the app pod and identify the number
+of containers in it.
+So the app pod
+has
+containers and there's a single container.
+No.
+That was not the app pod, okay.
+These are all the pods because we didn't specify
+a pod name.
+So let's give the name of the pod.
+Okay, so we have containers, an app,
+and there's just one container in it.
+So let's select that.
+And the container basically has this image
+called kube cloud event simulator.
+So the event simulator is just a simple program
+that just throws out some events for logs.
+So the application outputs logs to the file logapp.log.
+So logapp.log
+within this pod.
+Now view the logs and try to identify
+the user having issues with login.
+Inspect the log file inside the pod.
+So
+one way to do that is
+let's do a
+kubectl logs
+app
+no space elastic.
+And we see that these are the logs of the app.
+And the goal here
+is
+to
+identify the user having issues with login.
+So if you look through this,
+you'll see that it's user five
+that's having issues with login.
+The answer is user five.
+But let me also show that
+these are the logs that we are viewing from here
+but these logs are also stored within the pod.
+So if you do a typical exec into it, into the pod,
+so we're gonna do a
+elastic-stack exec
+-: IT app
+and then we just want to execute
+the command
+to view
+the log at
+app.log
+and you'll see the same contents,
+whatever we just saw, right.
+So this app is continuously throwing logs information
+through the logs and,
+but the point to note is that it's storing these logs
+at /log/app.log location
+within that particular container.
+Okay, so
+the answer as we said is user five.
+So let's proceed.
+Now edit the pod to add a sidecar container
+to send logs to Elasticsearch.
+If you look at this image here,
+we know that on this pod,
+the logs are stored under the location /log.
+Now what we want to do is the way that you connect a pod
+or you configure a pod to send logs to a central location.
+So let's say there are hundreds of pods, similar pods,
+and you want them to send logs
+to a central location, which is Elasticsearch.
+Then you add a sidecar container to it.
+So that's what we're gonna do here.
+So we already have...
+We know that the app pod already has a container called app
+and that's the existing container,
+which has this particular image.
+And that's actually the application.
+And then what we wanna do is add an additional container
+as a side car.
+So the name has to be sidecar,
+the image has to be the Filebeat image.
+So this is basically a custom image.
+We created off of the default Filebeat.
+And we've configured it to automatically send the data
+to Elasticsearch, right.
+And this is just something that's created just for this lab,
+purpose of this lab to demonstrate this.
+And then you have, we must configure the volume mount.
+So basically, these two,
+sorry, these two containers.
+So the app container and the file B container
+are going to share this particular path,
+the path to the log
+where the logs are stored.
+So let's do that.
+So, we have to edit
+the existing pod
+so kubectl edit pod app
+in the
+elastic namespace.
+And the goal is to add an additional container.
+So just going to add a container here.
+And the image for that container
+is
+Filebeat configured.
+Name
+is
+side car
+and
+need volume mount.
+And the volume mount path
+and we could just copy this from here.
+The mount path is wire log event simulator.
+And then the volume mount name is log volume.
+Okay.
+So this sidecar file B container.
+And what's happening here is
+the pod now is going to have two containers.
+The one, this is our actual application
+and it stores logs in this particular path,
+or in this particular volume, the volume named log volume.
+And that log volume is mounted
+at the path /log within this application.
+So this could be anything.
+But the important thing is this log volume
+that's specified here.
+And we're adding an additional container
+which all it does is it's going to take,
+it's going to read the logs and pass it through
+to the Elasticsearch.
+Central Elasticsearch kind of database.
+And what you have is you also have the volume mount here,
+and it's the same name.
+So these are gonna be the same volume.
+So think of a volume being here
+that's gonna be mounted on both of the containers, right.
+And then this, the path to this is at
+our log event simulator.
+And so basically the app.log
+is all gonna be stored inside this,
+on this container
+as well as inside this on this container.
+And this Filebeat is configured to read
+the logs from this particular directory
+and send it to Elasticsearch.
+So, from the point of this exercise,
+all we need to do is just add this
+additional sidecar container.
+Let me save that.
+But it's not gonna allow us to save that
+because product dates may not add or remove containers,
+but that's fine.
+We're gonna quit from this,
+and now we have our file with the edits
+and we'll just do a...
+You got to replace.
+/Worse.
+Okay.
+We'll just wait for that
+to finish.
+Okay.
+Let's check our work.
+Okay, that's successful.
+Let's go next.
+Now,
+inspect the Kibana UI and you should now see the logs
+appearing in the discover section.
+So let's go to the Kibana UI.
+We go here.
+Okay, so what this says is
+that you have to create an index pattern.
+Kibana uses index patterns to retrieve data
+from Elasticsearch.
+Right, so you have to give something like a pattern
+that it can look for.
+Well, basically we are just gonna get everything.
+So we'll just
+say star
+and time filter field name.
+I don't wanna use time filter.
+And let's just create the index pattern.
+Okay.
+And let's go to discover,
+and we should now be able to see
+the logs coming through.
+So these are the logs that are coming through.
+So here you have the user related details.
+So user two is viewing page one.
+You have,
+user three is logged in.
+User four as this is viewing page one.
+User seven order is failed.
+So these are the details that we saw earlier,
+when we just reviewed the logs directly.
+So now we have the logs coming in through
+to this Kibana dashboard.
+And we can have as many...
+We can do the same configuration to as many pods
+or deployments or any application
+that we deploy on Kubernetes
+to be configured through.
+Okay, so that's about it for now.
+And I'll see you in the next one.

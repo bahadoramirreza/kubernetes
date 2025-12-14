@@ -1,0 +1,332 @@
+WEBVTT
+-: Okay, so in this video we're going to go
+through the lab on cluster upgrade process.
+So this lab tests your skills
+on upgrading a Kubernetes cluster
+and we have a production cluster
+with applications running on it.
+Let's explore the setup first.
+So the first question is,
+what is the current version of the cluster?
+So we're gonna do, kubectl get nodes,
+the alias is not set up,
+so let me do that.
+So kubectl get nodes
+and we see that
+there are two nodes
+and the version that we are currently
+at is one 1.19.0.
+So 1.19.0.
+Okay, so how many nodes are part of this cluster?
+So there are two nodes
+including the master and worker nodes.
+How many nodes can host workloads in this cluster?
+So inspect the applications
+and taints set on the nodes.
+So let's look at,
+let's do a kubectl describe node command
+and look for taints.
+Let's see if there are any taints set on them.
+So there are no taints, so that means both-
+both the nodes can host applications.
+So,
+that's two.
+So we can have both the nodes running hosting applications.
+Now how many applications are hosted on the cluster?
+So let's do a get deploy.
+And we see that there's just one application
+and that's the blue application.
+And let's go to the next one.
+Now, what nodes are the pods hosted on?
+So let's do a get pods with the wide option.
+And we see that the pods are hosted
+on control plane as well as node zero one.
+So both control plane and node zero one.
+Okay, so you're tasked to upgrade the cluster.
+Now users accessing the applications must not be impacted
+and you cannot provision new EMs.
+So currently there are two EMs,
+the control plane and node zero one.
+So you cannot provision new EMs
+and the users accessing the applications
+must not be impacted.
+So we cannot, like, fully take the applications down.
+So what strategy would you use
+to upgrade the cluster?
+Upgrade one node at a time while
+moving to the workloads to the other.
+So that, that looks like the best option.
+We'll also see why the others are not.
+So users will be impacted
+since there's only one worker node.
+So that's incorrect because we have seen
+that the workload can be scheduled
+on both the control plane and the worker node
+even though there's like only one worker node.
+So in this case, even
+if we take down the worker node,
+the deployments, the applications
+are going to be recreated
+on the control plane node.
+So our users will not be impacted,
+just in this case because we've seen
+that that's the way it is, set up, this particular cluster.
+And upgrade all nodes at once,
+if we do that, of course
+the applications will be down
+for the time during which the,
+the nodes are being upgraded
+so the users are going to be impacted.
+So that's not the correct option.
+And add new nodes with newer versions
+while taking down new exist-existing nodes.
+That's incorrect because it is said here
+that you cannot provision new, new EMs.
+So we cannot add new nodes, right?
+So the, the option here is to upgrade one node
+at a time while moving the workloads to the other.
+Okay, so what is the latest stable version available
+for upgrade using the kubeadm tool?
+So let's do the kubeadm tool.
+And we know that we have the upgrade plan option.
+So we we're not, this question is not to find
+out this latest stable version of Kubernetes
+but what the latest stable version
+that this particular Kube admin tool knows as of now.
+So when you, so let's just running the upgrade
+plan command lists the options that we have.
+So currently the kubeadm tool itself is
+on one 19, version one 19.
+As you can see here, the kubeadm version is one 19
+and this particular kubeadm version
+this tool can upgrade
+this cluster
+to one 19,
+1.19.16.
+If we need to upgrade to a higher version,
+which, so if you look at this
+the remote version as of this recording
+is 1.23.5.
+So if you want to upgrade to any version other
+than 1.19, so like
+1.20 or 1.21
+then we will need to upgrade the kubeadm tool itself.
+But to answer this question,
+the available
+stable version of-
+as of this recording is
+1.19.16.
+Okay, so now we will be upgrading the master node first.
+So let's drain the master node
+of workloads and mark it unschedulable.
+So let's do that.
+Let's do a, kubectl drain
+and control plane and with the ignore demand set
+option
+Hit auto complete and configured for this lab.
+So I just have to,
+okay, so we're just waiting
+for the pods to be evicted.
+Okay, let's check the status.
+We see that control plane scheduling is disabled
+and if you look at the parts
+just to be sure,
+we see that they're all
+on node zero one now.
+Okay, now next we upgrade the control plane components
+to the exact version 1.20.0.
+So that's what we need to upgrade to.
+So for that we have to upgrade the kubeadm tool first
+and, and then the master components, right?
+So first we have to upgrade the kubeadm tool
+and then the master controlling components
+and then the, the kubelets.
+So that's kind of the high-level steps
+and we will refer to the
+Kubernetes documentation pages for this.
+So let's open up
+the Kubernetes documentation page.
+And so it's for upgrade
+and here we have upgrading kubeadm clusters.
+So that's what we want to do.
+And so the goal here is
+that we know that we're currently on 1.19
+and we wanna upgrade it to 1.20, right?
+So as of this recording,
+this lab is asking to upgrade
+to one-from 1.19 to 1.20, but depending on-
+on when you're working on this lab,
+depending on what the question is here
+you must select the right one from here.
+So I'm gonna select this, this one right here
+which is 1.19 to 20.
+And here are the steps.
+So if, so, when going through this, remember that
+so first we determine which version
+to upgrade to then first.
+Here we have upgrading control plane node
+and then below we have upgrading worker node.
+So remember to follow the right one.
+So the first step, and also there's, there are two versions.
+So this is for Ubuntu and Debian,
+it is for Centos,
+and if you're not sure which one you're on,
+You could do a .git see/release
+and this will tell you the the current
+operating system version so that,
+you're on Ubuntu right now.
+So that's what we are going to go with.
+Okay? So let's run this first
+to identify the exact version
+that we want to upgrade to.
+But we already have it here
+but let's just do this
+to find out for sure.
+Okay, so the version that we wanna upgrade
+to is 1.20.0, but then there's also this, right?
+So the last digits, so we have,
+so this is what we're gonna upgrade to,
+1.20.0-00, okay?
+Now the first step is to upgrade the control plane node.
+That's what we're gonna do.
+And this is the command.
+The first step is to upgrade kubeadm itself.
+So the kubeadm tool itself.
+So there are two ways to do it.
+You can either run these three commands
+or you can just run this,
+these two commands that are, that are together.
+But for this
+the app get version should be greater than 1.1.
+So you can actually verify that
+by running app get version.
+So we're on 1.6
+so that means we can just run this command.
+I'm going to copy this
+and that should be zero zero.
+We're going to change this to zero.
+So that's what we want to upgrade to.
+So let's run that.
+Okay, so kubeadm is now upgraded.
+Next, let's verify it using the kubeadm init command.
+And we see that it's now at 1.20.0.
+Next we run the upgrade plan again
+so we can get the new plan.
+Okay, so
+here we see,
+okay, so here we see the details.
+So you have the current version of the API server
+and everything here, and we have the available version here.
+But what we want to do is to upgrade this
+to this specifically.
+So that's what we're going to do.
+So we're going to do the
+kubeadm upgrade apply command
+and specify the version at zero.
+Are you sure you want proceed with the upgrade?
+Yes.
+Okay, so that's done.
+It says your cluster was upgraded to version 1.20.0
+and the next step is to upgrade your CNA provider.
+So we're gonna skip that now, we don't wanna do that.
+And for other control plane nodes,
+we do not have any other control pane nodes
+as of now.
+And finally, so the, the node is already drained
+so we don't have to do that either.
+So the final step is to upgrade kubelet
+and kubectl utility, right?
+And so here again, we're gonna follow this
+second command
+and we'll change it to version zero zero.
+Okay.
+And then the final step is to restart kubelet.
+So let's do that.
+Okay? And then it's to uncordon the nodes.
+So let's just check status now.
+And we see that you run get nodes.
+You see that the control plane is now at 1.20.
+So let's check the work.
+Okay.
+Now we've got to mark the control plane node
+as schedulable again.
+So that's basically this step.
+So we can do that now.
+Let's uncordon control plane
+and let's verify it's done.
+Yep.
+Okay, next is the worker node.
+So drain the worker node
+of the workloads and mark it unschedulable,
+so we see that it's in the ready state
+and we're going to drain it oh zero one
+and then we pass the ignore Daemonsets option
+and we'll just wait for the pods to be evicted.
+Okay.
+Now let's check the status of the node.
+And also let's check the status of odd.
+So now you can see that node zero one is cordoned
+and then all the pods are now on control plane.
+So the the, the workload have now moved to control plane.
+So now it's, we can safely kind of upgrade node zero one.
+Okay, so now we're go to upgrade the node-worker node
+to the exact version, 1.20.0.
+So let's go here.
+The upgrade procedure and worker node
+should be executed one node at a time
+a few nodes at a time
+without compromising the minimum required capacity.
+So we have taken care of that.
+The first step is to upgrade kubeadm.
+So this needs to be on the worker node.
+So remember that.
+So you could attach this
+to the worker node by just
+typing the name of the node
+if that's set up properly.
+Or another way to do that is to find
+the IP address of the nodes
+by running a get nodes wide command
+and then SSH to this internal IP of node zero one.
+Yes.
+Okay, so we're now on node zero one.
+So the first step is to upgrade kube,
+the kube admin tool.
+So let's copy this
+and set it to zero.
+Okay, so that's complete.
+The next step is to call the kubeadm upgrade node command.
+And what this is going to do is gonna upgrade the local,
+the kubelet configuration.
+This should be pretty quick.
+So that's done.
+The next step is to drain the nodes.
+So the, the node is already drained
+so we don't have to do that.
+And then the next step is to upgrade
+the kubelet and kubectl utility.
+So let's copy these
+and
+let's change this to zero.
+Okay?
+And then you have the restart kubelet option.
+Restart kubelet.
+Then finally uncordoned, right?
+So we'll do that.
+Let's first check the status.
+Let's go back to the control plane node
+and let's check the status of the node.
+And we see that it's now on 1.20.
+Let's check the status.
+Okay, that's successful.
+Now we have to remove the restriction
+and mark the worker node as to do a plugin.
+So that's the uncordon.
+So we're going to uncordon node zero one.
+Okay, let's check
+the nodes.
+And we see that both of them are in ready state.
+Okay, so we have successfully moved the workload
+between the nodes and managed to upgrade
+both the nodes in the cluster.
+Well, that's the end of this lab.

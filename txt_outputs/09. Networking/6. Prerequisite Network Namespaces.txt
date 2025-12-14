@@ -1,0 +1,219 @@
+WEBVTT
+In this video, we get introduced to network namespaces.
+In Linux, network namespaces are used by containers like Docker to implement network isolation.
+We'll start with a simple host.
+As we know already, containers are separated from the underlying host using namespaces.
+So what are namespaces?
+If your host was your house, then namespaces are the rooms within the house that you assign to each
+of your children.
+The room helps in providing privacy to each child.
+Each child can only see what's within his or her room.
+They cannot see what happens outside their room.
+As far as they're concerned, they're the only person living in the house.
+However, as a parent, you have visibility into all the rooms in the house as well as other areas of
+the house.
+If you wish, you can establish connectivity between two rooms in the house.
+When you create a container, you want to make sure that it is isolated, that it does not see any other
+processes on the host or any other containers, so we create a special room for it on our host using
+a namespace.
+As far as the container is concerned, it only sees the processes run by it and thinks that it is on
+its own host.
+The underlying host, however, has visibility into all of the processes, including those running inside
+containers.
+This can be seen when you list the processes from within the container.
+You see a single process with the process ID of one.
+When you list the same processes as a root user from the underlying host, you see all the other processes
+along with the process running inside the container, this time with a different process ID.
+It's the same process running with different process IDs inside and outside the container.
+That's how namespaces work.
+When it comes to networking, our host has its own interfaces that connect to the local area network.
+Our host has its own routing and ARP tables with information about the rest of the network.
+We want to seal all of those details from the container.
+When the container is created, we create a network namespace for it.
+That way it has no visibility to any network related information on the host within its namespace.
+The container can have its own virtual interfaces, routing, and ARP tables.
+The container has its own interface to create a new network namespace on a Linux host, run the IP Netns
+add command.
+In this case, we create two network namespaces to list the network namespaces, run the IP Netns command
+to list the interfaces.
+On my host, I run the IP link command.
+I see that my host has the loopback interface and the eth0 interface.
+Now how do we view the same within the network namespace that we created?
+How do we run the same command within the red or blue namespace prefix the command with the command
+ip Netns exec, followed by the namespace name, which is red.
+Now the IP link command will be executed inside the red namespace.
+Another way to do it is to add the dash n option to the original IP link command.
+Both of these are the same.
+The second one is simpler, but remember this only works if you intend to run the IP command inside
+the namespace.
+As you can see, it only lists the loopback interface.
+You cannot see the eth0 interface on the host.
+So with namespaces we have successfully prevented the container from seeing the hosts interface.
+The same is true with the ARP table.
+If you run the ARP command on the host, you see a list of entries, but if you run it inside the container,
+you see no entries.
+And the same for routing table.
+Now, as of now, this network namespaces have no network connectivity.
+They have no interfaces of their own and they cannot see the underlying host network.
+Let's first look at establishing connectivity between the namespaces themselves.
+Just like how you would connect two physical machines together using a cable to an Ethernet interface,
+on each machine, you can connect two namespaces together using a virtual Ethernet pair or a virtual
+cable.
+It's often referred to as a pipe, but I like to call it a virtual cable with two interfaces on either
+ends.
+To create the cable, run the IP link, add command with the type set to V and specify the two ends.
+We either red and blue.
+The next step is to attach each interface to the appropriate namespace.
+Use the command IP link set v red and n as red.
+To do that, similarly, attach the blue interface to the blue namespace.
+We can then assign IP addresses to each of these namespaces.
+We will use the usual IP addr command to assign the IP address, but within each namespace we will assign
+the right namespace and IP 192.168.5.1.
+We then assign the namespace and IP 1921685.2.
+We then bring up the interface using the IP link.
+Set up command for each device within the respective namespaces.
+The links are up and the namespaces can now reach each other.
+Try ping from the namespace to reach the IP of the blue.
+If you look at the ARP table on the red namespace, you see it's identified its blue neighbor at 19216815.2
+with the Mac address.
+Similarly, if you list the ARP table on the blue namespace, you see it's identified its red neighbor.
+If we compare this with the ARP table of the host, you see that the host ARP table has no idea about
+this new namespaces we have created, and no idea about the interfaces we created in them.
+Now that worked when we had just two namespaces.
+What do you do when you have more of them?
+How do you enable all of them to communicate with each other?
+Just like in the physical world, you create a virtual network inside your host.
+Create a network.
+You need a switch.
+So to create a virtual network you need a virtual switch.
+So you create a virtual switch within our host and connect the namespaces to it.
+But how do you create a virtual switch within a host?
+There are multiple solutions available, such as the native solution called as Linux Bridge and the
+open Vswitch, etc. in this example, we will use the Linux bridge option to create an internal bridge
+network.
+We add a new interface to the host using the IP link add command.
+With the type set to bridge.
+We will name it VNet zero.
+As far as our host is concerned, it is just another interface.
+Just like the eth0 interface, it appears in the output of the IP link command, along with the other
+interfaces.
+It's currently down, so you need to turn it up.
+Use the IP link, set dev up command to bring it up.
+Now for the namespaces.
+This interface is like a switch that it can connect to.
+So think of it as an interface for the host and a switch for the namespaces.
+So the next step is to connect the namespaces to this new virtual network switch.
+Earlier we created the cable or the ETH pair with the red interface on one end and blue interface on
+the other, because we wanted to connect the two namespaces directly.
+Now we will be connecting all namespaces to the bridge network, so we need new cables for that purpose.
+This cable doesn't make sense anymore, so we will get rid of it.
+Use the IP link delete command to delete the cable.
+When you delete the link with one end, the other end gets deleted automatically since they are a pair.
+Let us now create new cables to connect the namespaces to the bridge.
+Run the IP link, add command and create a pair with with red on one end like before, but this time
+the other end will be named.
+We eth red BR as it connects to the bridge network.
+This naming convention will help us easily identify the interfaces that associate to the red namespace.
+Similarly, create a cable to connect the blue namespace to the bridge network.
+Now that we have the cables ready, it's time to get them connected to the namespaces.
+To attach one end of this of the interface to the namespace, run the IP link set V-thread Netns.
+Read command to attach the other end to the bridge network.
+Run the IP link.
+Set command on the V-thread and specify the master for it as the VNet zero network.
+Follow the same procedure to attach the blue cable to the blue namespace and the bridge network.
+Let us now set IP addresses for these links and turn them up.
+We will use the same IP addresses that we used before 19216815.1, and 192.168.15.2.
+And finally turn the devices up.
+The containers can now reach each other over the network, so we follow the same procedure to connect
+the remaining two namespaces to the same network.
+We now have all four namespaces connected to our internal bridge network, and they can all communicate
+with each other.
+They have all IP addresses 1922168.12, three and four.
+And remember we assigned our host the IP 1921681.2 from my host.
+What if I try to reach one of these interfaces in these namespaces?
+Will it work?
+No.
+My host is on one network and the namespaces are on another.
+But what if I really want to establish connectivity between my host and these namespaces?
+Remember we said that the switch is actually a network interface for the host.
+So we do have an interface on the 192.168 15 network on our host.
+Since this is just another interface, all we need to do is assign an IP address to it so we can reach
+the namespaces through it.
+Run the IP addr command to set the IP 192.168.15.5.
+To this interface, we can now ping the namespace from our local host.
+Now remember, this entire network is still private and restricted within the host from within the namespaces.
+You can't reach the outside world, nor can anyone from the outside world reach the services or applications
+hosted inside.
+The only door to the outside world is the Ethernet port on the host.
+So how do we configure this bridge to reach the LAN network through the Ethernet port?
+Say there is another host attached to our LAN network with the address 1921681.3.
+How can we reach this host from within my namespaces?
+What happens if I try to ping this host from my blue namespace?
+The blue namespace sees that I'm trying to reach a network at 192.168.1, which is different from my
+current network of 192.168.115.
+So it looks at its routing table to see how to find that network.
+The routing table has no information about other network, so it comes back saying that the network
+is unreachable.
+So we need to add an entry into the routing table to provide a gateway or door to the outside world.
+So how do we find that gateway a door or a gateway, as we discussed before, is a system on the local
+network that connects to the other network.
+So what is a system that has one interface on the network local to the blue namespace, which is the
+192.168.15 network and is also connected to the outside LAN network.
+Here's a logical view.
+It's the localhost that have all these namespaces on, so you can ping the namespaces.
+Remember, our local host has an interface to attach to the private network.
+So you can ping the namespaces.
+So our local host is the gateway that connects the two networks together.
+We can now add a row entry in the namespace to say route all traffic to the 1921681 network through
+the gateway at 1921685.5.
+Now remember our host has two IP addresses, one on the bridge network at 19216815.5, and another on
+the external network at 192.1681.2.
+Can you use any in the route?
+No, because the namespace can only reach the gateway in its local network at 192.1685.5.
+The default gateway should be reachable from your namespace when you add it to your route.
+When you try to ping now, you no longer get the network unreachable message, but you still don't get
+any response back from the ping.
+What might be the problem?
+We talked about a similar situation in one of our earlier lectures, where from our home network, we
+try to reach the external internet through our router.
+Our home network has our internal private IP addresses that the destination network don't know about,
+so they cannot reach back for this.
+We need Nat enabled on our host acting as a gateway here, so that it can send the messages to the LAN
+in its own name, with its own address.
+So how do we add Nat functionality to our host?
+You should do that using iptables.
+Add a new rule in the Nat IP table in the postrouting chain to masquerade or replace the from address
+on all packets coming from the source network.
+192.168.15.0 with its own IP address.
+That way, anyone receiving these packets outside the network will think that they're coming from the
+host and not from within the namespaces.
+When we try to ping now, we see that we are able to reach the outside world.
+Finally, say the LAN is connected to the internet.
+We want the namespaces to reach the internet.
+So we try to ping a server on the internet at 8.8.8.8.
+From the namespace, we receive a familiar message that the network is unreachable by.
+Now we know why that is.
+We look at the routing table and see that we have routes to the network 18321681, but not to anything
+else.
+Since these namespaces can reach any network our host can reach, we can simply say that to reach any
+external network, talk to our host.
+So we add a default gateway specifying our host.
+We should now be able to reach the outside world from within these namespaces.
+Now what about connectivity from the outside world to inside the namespaces?
+Say, for example, the blue namespace hosts a web application on port 80.
+As of now, the namespaces are on an internal private network, and no one from the outside world knows
+about them.
+We can only access these from the host itself.
+If you try to ping the private IP of the namespace from another host on another network, you will see
+that it's not reachable.
+Obviously, because that host doesn't know about this private network.
+In order to make that communication possible, you have two options.
+The two options that we saw in the previous lecture on Nat, the first is to give away the identity
+of the private network to the second host.
+So we basically add an IP route entry to the second host, telling the host that the network 192.168.15
+can be reached through the host at 192.1681.2.
+But we don't want to do that.
+The other option is to add a port forwarding rule using iptables to say any traffic coming to port 80
+on the local host is to be forwarded to port 80 on the IP assigned to the blue namespace.
+Well, that's it for this video.
+Thank you for watching.
