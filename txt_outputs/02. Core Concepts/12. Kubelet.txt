@@ -1,6 +1,4 @@
-WEBVTT
-In this lecture we will look at cubelet.
-Earlier we discussed that the Cubelet is like the captain of the ship.
+Kubelet is like the captain of the ship.
 They lead all activities on a ship.
 They are the ones responsible for doing all the paperwork necessary to become part of the cluster.
 They are the sole point of contact from the master ship.
