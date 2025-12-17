@@ -1,5 +1,3 @@
-WEBVTT
-In this lecture we will talk about kube proxy within a Kubernetes cluster.
 Every pod can reach every other pod.
 This is accomplished by deploying a pod networking solution to the cluster.
 A pod network is an internal virtual network that spans across all the nodes in the cluster, to which
