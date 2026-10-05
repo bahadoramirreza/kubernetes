@@ -1,0 +1,170 @@
+<svg viewBox="0 0 1400 1000" xmlns="http://www.w3.org/2000/svg">
+  <!-- Define styles -->
+  <defs>
+    <style>
+      .box { fill: #E8F4F8; stroke: #0066CC; stroke-width: 2; }
+      .ci-box { fill: #E6F0FF; stroke: #0066CC; stroke-width: 2; }
+      .cd-box { fill: #FFF0E6; stroke: #FF6600; stroke-width: 2; }
+      .process-box { fill: #F0E6FF; stroke: #6600CC; stroke-width: 2; }
+      .test-box { fill: #E6FFE6; stroke: #00AA00; stroke-width: 2; }
+      .header { font-size: 24px; font-weight: bold; text-anchor: middle; }
+      .subtitle { font-size: 14px; text-anchor: middle; fill: #333; }
+      .title { font-size: 16px; font-weight: bold; text-anchor: middle; fill: #FFF; }
+      .arrow { stroke: #333; stroke-width: 2; fill: none; marker-end: url(#arrowhead); }
+      .phase { font-size: 18px; font-weight: bold; fill: #FFF; text-anchor: middle; }
+      .text { font-size: 12px; text-anchor: middle; fill: #333; }
+      .text-white { font-size: 12px; text-anchor: middle; fill: #FFF; }
+    </style>
+    <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <polygon points="0 0, 10 3, 0 6" fill="#333" />
+    </marker>
+  </defs>
+
+  <!-- Title -->
+  <text x="700" y="40" class="header">CI/CD Pipeline - فرآیند کامل</text>
+  <text x="700" y="65" class="subtitle">Complete DevOps Workflow</text>
+
+  <!-- PHASE 0: Source -->
+  <rect x="50" y="100" width="140" height="80" class="box" rx="8"/>
+  <text x="120" y="130" class="title" style="fill: #0066CC;">Developer</text>
+  <text x="120" y="150" class="text">(Push Code)</text>
+  <text x="120" y="170" class="text">توسعه‌دهنده</text>
+
+  <!-- Arrow -->
+  <path d="M 190 140 L 240 140" class="arrow"/>
+
+  <!-- GitLab -->
+  <rect x="240" y="100" width="140" height="80" class="box" rx="8"/>
+  <text x="310" y="130" class="title" style="fill: #0066CC;">GitLab</text>
+  <text x="310" y="150" class="text">(Repository)</text>
+  <text x="310" y="170" class="text">مخزن</text>
+
+  <!-- Arrow to CI -->
+  <path d="M 380 140 L 430 140" class="arrow"/>
+
+  <!-- ===== CI PHASE HEADER ===== -->
+  <rect x="430" y="80" width="450" height="40" fill="#0066CC" rx="8"/>
+  <text x="655" y="107" class="phase">PHASE 1: CI (Build & Package)</text>
+
+  <!-- CI Column -->
+  <!-- Jenkins -->
+  <rect x="430" y="150" width="140" height="80" class="ci-box" rx="8"/>
+  <text x="500" y="180" class="title" style="fill: #0066CC;">Jenkins</text>
+  <text x="500" y="200" class="text">(Slave Jobs)</text>
+  <text x="500" y="220" class="text">≤ 100 Task</text>
+
+  <!-- Arrow -->
+  <path d="M 570 190 L 620 190" class="arrow"/>
+
+  <!-- Maven -->
+  <rect x="620" y="150" width="140" height="80" class="ci-box" rx="8"/>
+  <text x="690" y="180" class="title" style="fill: #0066CC;">Maven</text>
+  <text x="690" y="200" class="text">Repository</text>
+  <text x="690" y="220" class="text">(Port 8080)</text>
+
+  <!-- Arrow -->
+  <path d="M 760 190 L 810 190" class="arrow"/>
+
+  <!-- Docker Build -->
+  <rect x="810" y="150" width="140" height="80" class="ci-box" rx="8"/>
+  <text x="880" y="180" class="title" style="fill: #0066CC;">Docker</text>
+  <text x="880" y="200" class="text">Build</text>
+  <text x="880" y="220" class="text">(Dockerfile)</text>
+
+  <!-- Arrow -->
+  <path d="M 950 190 L 1000 190" class="arrow"/>
+
+  <!-- Nexus -->
+  <rect x="1000" y="150" width="140" height="80" class="ci-box" rx="8"/>
+  <text x="1070" y="180" class="title" style="fill: #0066CC;">Nexus</text>
+  <text x="1070" y="200" class="text">Repository</text>
+  <text x="1070" y="220" class="text">(Base Images)</text>
+
+  <!-- Arrow down -->
+  <path d="M 1070 230 L 1070 280" class="arrow"/>
+
+  <!-- File Server -->
+  <rect x="950" y="280" width="240" height="80" class="ci-box" rx="8"/>
+  <text x="1070" y="310" class="title" style="fill: #0066CC;">File Server</text>
+  <text x="1070" y="330" class="text">(Port 8090)</text>
+  <text x="1070" y="350" class="text">Package & Docker Images</text>
+
+  <!-- Arrow to CD -->
+  <path d="M 1070 360 L 1070 410" class="arrow"/>
+
+  <!-- ===== CD PHASE HEADER ===== -->
+  <rect x="430" y="390" width="450" height="40" fill="#FF6600" rx="8"/>
+  <text x="655" y="417" class="phase">PHASE 2: CD (Deploy & Test)</text>
+
+  <!-- DEPCloud -->
+  <rect x="950" y="450" width="240" height="80" class="cd-box" rx="8"/>
+  <text x="1070" y="480" class="title" style="fill: #FF6600;">DEPCloud</text>
+  <text x="1070" y="500" class="text">(Trigger Version Build)</text>
+  <text x="1070" y="520" class="text">نسخه ساخت</text>
+
+  <!-- Arrow -->
+  <path d="M 1070 530 L 1070 580" class="arrow"/>
+
+  <!-- BOMT -->
+  <rect x="950" y="580" width="240" height="80" class="process-box" rx="8"/>
+  <text x="1070" y="610" class="title" style="fill: #FFF;">BOMT</text>
+  <text x="1070" y="630" class="text-white">(Docker + Kubernetes)</text>
+  <text x="1070" y="650" class="text-white">Upgrade Task</text>
+
+  <!-- Arrow -->
+  <path d="M 1070 660 L 1070 710" class="arrow"/>
+
+  <!-- CRM BOMT & CRM ISC -->
+  <rect x="780" y="710" width="140" height="80" class="process-box" rx="8"/>
+  <text x="850" y="740" class="title" style="fill: #FFF;">CRM BOMT</text>
+  <text x="850" y="760" class="text-white">(kbs3)</text>
+  <text x="850" y="780" class="text-white">Database Mgmt</text>
+
+  <rect x="950" y="710" width="140" height="80" class="process-box" rx="8"/>
+  <text x="1020" y="740" class="title" style="fill: #FFF;">CRM ISC/POP</text>
+  <text x="1020" y="760" class="text-white">(Integration)</text>
+  <text x="1020" y="780" class="text-white">Service Mgmt</text>
+
+  <!-- Arrow -->
+  <path d="M 1020 790 L 1020 840" class="arrow"/>
+
+  <!-- Deployment -->
+  <rect x="920" y="840" width="200" height="80" class="cd-box" rx="8"/>
+  <text x="1020" y="870" class="title" style="fill: #FF6600;">Deployment</text>
+  <text x="1020" y="890" class="text">(Recreate Strategy)</text>
+  <text x="1020" y="910" class="text">Old → New Instances</text>
+
+  <!-- Arrow -->
+  <path d="M 1020 920 L 1020 970" class="arrow"/>
+
+  <!-- Auto Test -->
+  <rect x="920" y="970" width="200" height="100" class="test-box" rx="8"/>
+  <text x="1020" y="1000" class="title" style="fill: #00AA00;">Auto Test</text>
+  <text x="1020" y="1025" class="text">IOT / UAT / SIT</text>
+  <text x="1020" y="1045" class="text">Automated Testing</text>
+
+  <!-- End -->
+  <rect x="920" y="1080" width="200" height="80" fill="#4CAF50" rx="8"/>
+  <text x="1020" y="1115" class="title" style="fill: #FFF;">✓ End</text>
+  <text x="1020" y="1135" class="text-white">CD Complete</text>
+
+  <!-- Legend Box -->
+  <rect x="50" y="450" width="320" height="250" fill="none" stroke="#CCCCCC" stroke-width="1" stroke-dasharray="5,5" rx="8"/>
+  <text x="60" y="475" class="header" style="font-size: 14px; text-anchor: start;">Key Components</text>
+
+  <text x="70" y="505" class="text" style="text-anchor: start; fill: #0066CC; font-weight: bold;">▪ Developer:</text>
+  <text x="70" y="520" class="text" style="text-anchor: start; font-size: 11px;">Push & Manage Code</text>
+
+  <text x="70" y="540" class="text" style="text-anchor: start; fill: #0066CC; font-weight: bold;">▪ CI Phase:</text>
+  <text x="70" y="555" class="text" style="text-anchor: start; font-size: 11px;">Build, Test, Package</text>
+
+  <text x="70" y="575" class="text" style="text-anchor: start; fill: #FF6600; font-weight: bold;">▪ CD Phase:</text>
+  <text x="70" y="590" class="text" style="text-anchor: start; font-size: 11px;">Deploy to SIT/UAT/PROD</text>
+
+  <text x="70" y="610" class="text" style="text-anchor: start; fill: #6600CC; font-weight: bold;">▪ CRM Components:</text>
+  <text x="70" y="625" class="text" style="text-anchor: start; font-size: 11px;">Database & Integration</text>
+
+  <text x="70" y="645" class="text" style="text-anchor: start; fill: #00AA00; font-weight: bold;">▪ Auto Test:</text>
+  <text x="70" y="660" class="text" style="text-anchor: start; font-size: 11px;">IOT/UAT/SIT Testing</text>
+
+</svg>
